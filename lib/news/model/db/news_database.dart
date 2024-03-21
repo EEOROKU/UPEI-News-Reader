@@ -8,7 +8,7 @@ class NewsDatabase {
   static final NewsDatabase _singleton = NewsDatabase._internal();
 
   //change the source of the news here
-  final NewsSourcer _news = FakeNewsGenerator();
+  final NewsSourcer _news = u();
 
   factory NewsDatabase() {
     return _singleton;

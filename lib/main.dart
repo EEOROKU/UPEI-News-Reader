@@ -1,46 +1,17 @@
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
-import 'package:webfeed/webfeed.dart';
-import 'package:html/dom.dart' as dom;
-import 'package:html/parser.dart' show parse;
 import 'package:flutter_slidable/flutter_slidable.dart';
-import 'news/model/fetcher/Upei_db.dart';
+import 'news/model/fetcher/UPEINewsSource.dart';
 
 //Example Code Moves between 2 screens
 void main() async {
-  var client = http.Client();
-  var response = await client.get(Uri.parse('https://www.upei.ca/feeds/news.rss'));
-  var channel = RssFeed.parse(response.body);
+  var gen = UPEINewsSource();
+  var newsI = await gen.getNews();
   var news = [];
   var screens = [];
-  //await LocalHighScoreDatabase.init();
-  //LocalHighScoreDatabase db = LocalHighScoreDatabase();
-  //List<HighScoreRecord> records = [];
-  for(RssItem rssItem in channel.items??<RssItem>[]) {
-    final responses = await client.get(Uri.parse('${rssItem.link}'));
-
-    if(responses.statusCode == 200) {
-      var document = parse(responses.body);
-      dom.Element? link = document.getElementsByClassName("medialandscape")[0]
-          .querySelector('img');
-      String imageLink = link != null ? link.attributes['src']??"" : "";
-      imageLink = "https://upei.ca/"+imageLink;
-      final doc = parse(rssItem.description);
-      final String parsedDescription = parse(doc.body?.text).documentElement?.text??"";
-
-      var secondScreen = SecondScreen(img: imageLink,title: rssItem.title,author: rssItem.dc?.creator??"",date: "${rssItem.pubDate??DateTime.now()}", paper: parsedDescription,);
-      news.add(secondScreen);
-      /*records.add(HighScoreRecord(rssItem.title, imageLink, rssItem.dc?.creator??"", "${rssItem.pubDate??DateTime.now()}", parsedDescription)); */
-    }
-  }
-
-  /*db.put(records);
-  List<HighScoreRecord> record = db.getLeaders();
-  await LocalHighScoreDatabase.close();
-  for (var item in record) {
-    var secondScreen = SecondScreen(img: item.img,title: item.title,author: item.author,date: '${item.date}', paper: item.paper,);
+  for (var item in newsI) {
+    var secondScreen = SecondScreen(img: item.image,title: item.title,author: item.author,date: '${item.date}', paper: item.body,);
     news.add(secondScreen);
-  }*/
+  }
   for (var i = 0; i < news.length; i++){
     var routeName = '/third$i';
     screens.add(routeName);
@@ -140,13 +111,70 @@ class ChoiceTile extends StatelessWidget {
   final String page;
   ChoiceTile({Key? key, required this.img, required this.text, required this.page}) : super(key: key);
 
+
+
   @override
   Widget build(BuildContext context) {
     var cardColor = Colors.green[800];
 
     return StatefulBuilder(
         builder: (BuildContext context, StateSetter setState) {
-          return InkWell(
+          return Slidable(
+
+            key: const ValueKey(0),
+
+            // The start action pane is the one at the left or the top side.
+            startActionPane: ActionPane(
+              // A motion is a widget used to control how the pane animates.
+              motion: const ScrollMotion(),
+
+              // A pane can dismiss the Slidable.
+              dismissible: DismissiblePane(onDismissed: () {}),
+
+              // All actions are defined in the children parameter.
+              children: const [
+                // A SlidableAction can have an icon and/or a label.
+                SlidableAction(
+                  onPressed: print ,
+                  backgroundColor: Color(0xFFFE4A49),
+                  foregroundColor: Colors.white,
+                  icon: Icons.delete,
+                  label: 'Delete',
+                ),
+                SlidableAction(
+                  onPressed: print,
+                  backgroundColor: Color(0xFF21B7CA),
+                  foregroundColor: Colors.white,
+                  icon: Icons.share,
+                  label: 'Share',
+                ),
+              ],
+            ),
+
+            // The end action pane is the one at the right or the bottom side.
+            endActionPane: const ActionPane(
+              motion: ScrollMotion(),
+              children: [
+                SlidableAction(
+                  // An action can be bigger than the others.
+                  flex: 2,
+                  onPressed: print,
+                  backgroundColor: Color(0xFF7BC043),
+                  foregroundColor: Colors.white,
+                  icon: Icons.archive,
+                  label: 'Archive',
+                ),
+                SlidableAction(
+                  onPressed: print,
+                  backgroundColor: Color(0xFF0392CF),
+                  foregroundColor: Colors.white,
+                  icon: Icons.save,
+                  label: 'Save',
+                ),
+              ],
+            ),
+
+            child: InkWell(
             onTap: () {
               setState(() {
                 cardColor = Colors.grey;
@@ -167,6 +195,7 @@ class ChoiceTile extends StatelessWidget {
                 ),
               ),
             ),
+          ),
           );
         }
     );

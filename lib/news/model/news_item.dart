@@ -3,10 +3,10 @@ import 'package:equatable/equatable.dart';
 //Simple class to represent NewsItems
 class NewsItem extends Equatable{
 
-  final String title;
+  final String? title;
   final String body;
   final String author;
-  final DateTime date;
+  final String date;
 
   //has the article been read?
   final bool isRead;
