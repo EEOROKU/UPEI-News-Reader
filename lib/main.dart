@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'news/model/fetcher/UPEINewsSource.dart';
+import 'package:http/http.dart' as http;
+import 'package:a1_fakenews/news/model/fetcher/fetcher.dart';
 
 //Example Code Moves between 2 screens
 void main() async {
-  var gen = UPEINewsSource();
+  var client = http.Client();
+  var gen = UPEINewsSource(client: client);
   var newsI = await gen.getNews();
   var news = [];
   var screens = [];
